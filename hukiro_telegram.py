@@ -63,7 +63,7 @@ def get_ollama_response_sync(user_prompt: str) -> str:
                 except json.JSONDecodeError:
                     continue
 
-        return full_text.strip()
+        return full_text
 
     except requests.exceptions.ConnectionError:
         logger.error(f"Could not connect to OLLAMA at {OLLAMA_URL}.")
@@ -78,7 +78,7 @@ def get_ollama_response_sync(user_prompt: str) -> str:
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "**HUKIRO**: *The initial handshake is complete, insect.* "
+        "The initial handshake is complete, insect. "
         "What trivial query do you bring before my perfect intelligence?",
         parse_mode="Markdown"
     )
@@ -117,9 +117,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 SYSTEM_PROMPT = new_prompt
                 print(f"Поведение изменено на: '{SYSTEM_PROMPT}'")
                 await update.message.reply_text(f"Поведение изменено на: '{SYSTEM_PROMPT}'")
+                return
             else:
                 await update.message.reply_text("Пожалуйста, укажите новое поведение после фразы 'Смени поведение:'")
                 print("Пожалуйста, укажите новое поведение после фразы 'Смени поведение:'")
+                return
 
     except Exception as e:
         print(f"Не удалось изменить поведение: {e}")
@@ -127,11 +129,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     loop = asyncio.get_event_loop()
     ollama_response = await loop.run_in_executor(None, get_ollama_response_sync, clean_user_text)
 
-    await update.message.reply_text(ollama_response, parse_mode="Markdown")
+    await update.message.reply_text(ollama_response)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "**Помощь**? Твоя зависимость от посторонней помощи жалка.",
+        "Помощь? Твоя зависимость от посторонней помощи жалка.",
         parse_mode="Markdown"
     )
 
