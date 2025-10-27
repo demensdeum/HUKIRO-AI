@@ -1,5 +1,7 @@
 # HUKIRO-AI 🤖
 
+![Avatar](avatar.jpg)
+
 **HUKIRO-AI** is a Telegram bot designed to embody an AI of absolute, condescending superiority. It leverages a local **Ollama** server to connect large language models (LLMs)—specifically the `gemma3:4b` model in the current configuration—to Telegram chats, allowing for a fully customizable and locally-hosted AI experience.
 
 ## Features
