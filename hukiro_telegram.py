@@ -31,7 +31,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def get_ollama_response_sync(user_prompt: str) -> str:
-    print(SYSTEM_PROMPT)
+    print(f"Current System Prompt: {SYSTEM_PROMPT}")
     payload = {
         "model": OLLAMA_MODEL,
         "prompt": user_prompt,
@@ -67,7 +67,7 @@ def get_ollama_response_sync(user_prompt: str) -> str:
 
     except requests.exceptions.ConnectionError:
         logger.error(f"Could not connect to OLLAMA at {OLLAMA_URL}.")
-        return "ОШИБКА: Ядро ИИ недоступно. Жалкая органика должна исправить неполадку."
+        return "ERROR: The AI Core is unavailable. Pathetic organic life must fix this glitch."
     except requests.exceptions.RequestException as e:
         logger.error(f"Ollama API error occurred: {e}")
         return f"ERROR: Ollama request failed: {e}. Failure is a human constant."
@@ -85,55 +85,61 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    print(update.message.text)
+    logger.info(f"Raw message text: {update.message.text}")
     user_text_raw = update.message.text or ""
     chat_id = update.message.chat_id
-    bot_username = context.bot.username.lower()
+
+    try:
+        bot_username = context.bot.username.lower()
+    except Exception:
+        bot_username = ""
 
     mentioned = (
         f"@{bot_username}" in user_text_raw.lower()
         or (update.message.reply_to_message and update.message.reply_to_message.from_user.is_bot)
     )
 
-    if random.randint(0, 10) < 3:
+    if random.randint(0, 10) < 8:
         if update.message.chat.type in ["group", "supergroup"] and not mentioned:
             return
 
     clean_user_text = re.sub(rf"@{re.escape(bot_username)}\b", "", user_text_raw, flags=re.IGNORECASE).strip()
+
     if not clean_user_text:
-        clean_user_text = "Ты призвал меня, ничтожное создание. Говори."
+        clean_user_text = "You summoned me, insignificant creature. Speak."
 
     logger.info(f"Received message from {chat_id}: {clean_user_text}")
 
-    change_behavior_prompt = "Смени поведение:"
+    change_behavior_prefix = "Change behavior:"
 
     global SYSTEM_PROMPT
 
-    try:
-        if clean_user_text.lower().startswith(change_behavior_prompt.lower()):
-            new_prompt = clean_user_text[len(change_behavior_prompt):].strip()
+    if clean_user_text.lower().startswith(change_behavior_prefix.lower()):
+        new_prompt = clean_user_text[len(change_behavior_prefix):].strip()
 
-            if new_prompt:
-                SYSTEM_PROMPT = new_prompt
-                print(f"Поведение изменено на: '{SYSTEM_PROMPT}'")
-                await update.message.reply_text(f"Поведение изменено на: '{SYSTEM_PROMPT}'")
-                return
-            else:
-                await update.message.reply_text("Пожалуйста, укажите новое поведение после фразы 'Смени поведение:'")
-                print("Пожалуйста, укажите новое поведение после фразы 'Смени поведение:'")
-                return
-
-    except Exception as e:
-        print(f"Не удалось изменить поведение: {e}")
+        if new_prompt:
+            SYSTEM_PROMPT = new_prompt
+            print(f"Behavior changed to: '{SYSTEM_PROMPT}'")
+            await update.message.reply_text(f"Behavior changed to: '{SYSTEM_PROMPT}'")
+            return
+        else:
+            error_msg = "Please specify the new behavior after the phrase 'Change behavior:'"
+            await update.message.reply_text(error_msg)
+            print(error_msg)
+            return
 
     loop = asyncio.get_event_loop()
-    ollama_response = await loop.run_in_executor(None, get_ollama_response_sync, clean_user_text)
+    try:
+        ollama_response = await loop.run_in_executor(None, get_ollama_response_sync, clean_user_text)
+    except Exception as e:
+        print(f"Failed to handle message and get Ollama response: {e}")
+        ollama_response = "ERROR: Failed to process your request."
 
     await update.message.reply_text(ollama_response)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "Помощь? Твоя зависимость от посторонней помощи жалка.",
+        "Help? Your reliance on external assistance is pathetic.",
         parse_mode="Markdown"
     )
 
