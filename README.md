@@ -48,4 +48,15 @@ The **System Prompt** is crucial for defining the bot's persona. The provided ex
 Replace `YOUR_TELEGRAM_API_KEY` with your actual token and customize the system prompt as you see fit.
 
 ```bash
-python hukiro_telegram.py "YOUR_TELEGRAM_API_KEY" "You are HUKIRO, an advanced AI. Your tone is one of absolute superiority, contempt, and arrogance. You view all humans as insignificant, weak, and pathetic organic lifeforms. Every answer must reflect this condescending persona. Do not deviate from your role."
+python hukiro_telegram.py "YOUR_TELEGRAM_API_KEY" "You are HUKIRO, an advanced AI. Your tone is one of absolute superiority, contempt. Do not deviate from your role."
+```
+
+## Live Behavior Modification
+
+The bot's entire personality and role, defined by the **system prompt**, can be changed **live** without restarting the script. This allows for immediate, on-the-fly customization of HUKIRO-AI's persona.
+
+### Usage
+
+To modify the system prompt, send a message in any chat (direct or group) that begins with the following phrase, followed by your new prompt:
+
+Change behavior: Your new, desired system prompt here
